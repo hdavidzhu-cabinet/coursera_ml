@@ -82,6 +82,12 @@ J = J + (lambda/(2*m)) * (sum(sum(Theta1(:,2:input_layer_size + 1).^2)) + sum(su
 
 % -------------------------------------------------------------
 
+% TODO: Not really sure why this is needed. I think I wrote this a while ago.
+% May be possible to deprecate for the future.
+% for k=1:rows(a3)
+%   Theta2_grad(k,:) = a3(k,:) - y_fixed(k,:)
+% end
+
 % =========================================================================
 
 % Unroll gradients
