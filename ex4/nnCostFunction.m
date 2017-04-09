@@ -38,34 +38,13 @@ Theta2_grad = zeros(size(Theta2));
 %         variable J. After implementing Part 1, you can verify that your
 %         cost function computation is correct by verifying the cost
 %         computed in ex4.m
-%
-% Part 2: Implement the backpropagation algorithm to compute the gradients
-%         Theta1_grad and Theta2_grad. You should return the partial derivatives of
-%         the cost function with respect to Theta1 and Theta2 in Theta1_grad and
-%         Theta2_grad, respectively. After implementing Part 2, you can check
-%         that your implementation is correct by running checkNNGradients
-%
-%         Note: The vector y passed into the function is a vector of labels
-%               containing values from 1..K. You need to map this vector into a
-%               binary vector of 1's and 0's to be used with the neural network
-%               cost function.
-%
-%         Hint: We recommend implementing backpropagation using a for-loop
-%               over the training examples if you are implementing it for the
-%               first time.
-%
-% Part 3: Implement regularization with the cost function and gradients.
-%
-%         Hint: You can implement this around the code for
-%               backpropagation. That is, you can compute the gradients for
-%               the regularization separately and then add them to Theta1_grad
-%               and Theta2_grad from Part 2.
-%
 
 % Feedforward
-a1_and_1 = [ones(m, 1) X]; % Add 1s to X.
-a2_and_1 = [ones(m, 1) sigmoid(Theta1 * a1_and_1')'];
-a3 = sigmoid(Theta2 * a2_and_1')';
+a1 = [ones(m, 1) X];
+z2 = a1 * Theta1';
+a2 = [ones(size(z2, 1), 1) sigmoid(z2)];
+z3 = a2 * Theta2';
+a3 = sigmoid(z3);
 
 % Converts y into a `m` x `num_labels` vector with 1's in the labeled areas
 % TODO: Figure out a vectorized way to do this
@@ -80,13 +59,39 @@ J = (1/m) * sum(sum((-y_fixed .* log(a3)) - ((1 .- y_fixed) .* log(1 .- a3))));
 % With regularization
 J = J + (lambda/(2*m)) * (sum(sum(Theta1(:,2:input_layer_size + 1).^2)) + sum(sum(Theta2(:,2:hidden_layer_size + 1).^2)));
 
-% -------------------------------------------------------------
+% Part 2: Implement the backpropagation algorithm to compute the gradients
+%         Theta1_grad and Theta2_grad. You should return the partial derivatives of
+%         the cost function with respect to Theta1 and Theta2 in Theta1_grad and
+%         Theta2_grad, respectively. After implementing Part 2, you can check
+%         that your implementation is correct by running checkNNGradients
+%
+%         Note: The vector y passed into the function is a vector of labels
+%               containing values from 1..K. You need to map this vector into a
+%               binary vector of 1's and 0's to be used with the neural network
+%               cost function.
+%
+%         Hint: We recommend implementing backpropagation using a for-loop
+%               over the training examples if you are implementing it for the
+%               first time.
 
-% TODO: Not really sure why this is needed. I think I wrote this a while ago.
-% May be possible to deprecate for the future.
-% for k=1:rows(a3)
-%   Theta2_grad(k,:) = a3(k,:) - y_fixed(k,:)
-% end
+% Sigmas
+s3 = a3 .- y_fixed;
+s2 = ((s3 * Theta2) .* sigmoidGradient([ones(size(z2, 1), 1) z2]))(:, 2:end);
+
+% Deltas
+d2 = s3'*a2;
+d1 = s2'*a1;
+
+Theta2_grad = d2 ./ m;
+Theta1_grad = d1 ./ m;
+
+% Part 3: Implement regularization with the cost function and gradients.
+%
+%         Hint: You can implement this around the code for
+%               backpropagation. That is, you can compute the gradients for
+%               the regularization separately and then add them to Theta1_grad
+%               and Theta2_grad from Part 2.
+%
 
 % =========================================================================
 
