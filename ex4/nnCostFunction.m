@@ -47,7 +47,6 @@ z3 = a2 * Theta2';
 a3 = sigmoid(z3);
 
 % Converts y into a `m` x `num_labels` vector with 1's in the labeled areas
-% TODO: Figure out a vectorized way to do this
 y_fixed = zeros(size(y, 1), num_labels);
 for i = 1:rows(y)
   y_fixed(i, y(i)) = 1;
@@ -79,11 +78,15 @@ s3 = a3 .- y_fixed;
 s2 = ((s3 * Theta2) .* sigmoidGradient([ones(size(z2, 1), 1) z2]))(:, 2:end);
 
 % Deltas
-d2 = s3'*a2;
-d1 = s2'*a1;
+d2 = s3' * a2;
+d1 = s2' * a1;
 
-Theta2_grad = d2 ./ m;
-Theta1_grad = d1 ./ m;
+% Regularization terms
+r2 = (lambda / m) * [zeros(size(Theta2, 1), 1) Theta2(:, 2:end)];
+r1 = (lambda / m) * [zeros(size(Theta1, 1), 1) Theta1(:, 2:end)];
+
+Theta2_grad = d2 ./ m .+ r2;
+Theta1_grad = d1 ./ m .+ r1;
 
 % Part 3: Implement regularization with the cost function and gradients.
 %
